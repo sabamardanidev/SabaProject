@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>بینایی کورتکس - ورود به سامانه</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Tahoma, sans-serif;
+            background-color: #000000;
+            background-image: radial-gradient(circle at 50% 50%, #151517 0%, #000000 100%);
+            height: 100vh; margin: 0; display: flex; justify-content: center; align-items: center; overflow: hidden;
+        }
+
+        @keyframes floatCard {
+            0% { opacity: 0; transform: translateY(40px) scale(0.95); }
+            100% { opacity: 1; transform: translateY(0) scale(1); }
+        }
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            20%, 60% { transform: translateX(-10px); }
+            40%, 80% { transform: translateX(10px); }
+        }
+
+        .login-glass-card {
+            background: rgba(28, 28, 30, 0.75);
+            backdrop-filter: blur(35px); -webkit-backdrop-filter: blur(35px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            padding: 45px 35px; border-radius: 28px; width: 330px; text-align: center;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7);
+            animation: floatCard 0.9s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        /* استایل پاپ‌آپ ارور نئونی */
+        .error-popup {
+            background: rgba(255, 69, 58, 0.15); border: 1px solid rgba(255, 69, 58, 0.3);
+            color: #ff453a; padding: 12px; border-radius: 12px; font-size: 13px;
+            margin-bottom: 20px; animation: shake 0.5s ease-in-out; display: block;
+        }
+
+        .auth-hub { position: relative; width: 60px; height: 60px; margin: 0 auto 20px; background: rgba(10, 132, 255, 0.1); border-radius: 50%; display: flex; justify-content: center; align-items: center; }
+        .auth-hub-core { width: 24px; height: 24px; background: #0a84ff; border-radius: 50%; box-shadow: 0 0 15px #0a84ff; }
+
+        h2 { color: #ffffff; font-size: 24px; font-weight: 700; margin: 0; }
+        p { color: #8e8e93; font-size: 12px; margin-top: 6px; margin-bottom: 25px; }
+
+        .input-wrapper { margin-bottom: 16px; }
+        input {
+            width: 100%; padding: 14px 16px; background: rgba(44, 44, 46, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 12px;
+            color: #ffffff; font-size: 14px; box-sizing: border-box; outline: none; text-align: center;
+        }
+        input:focus { border-color: #0a84ff; box-shadow: 0 0 0 4px rgba(10, 132, 255, 0.15); }
+
+        button {
+            width: 100%; background: linear-gradient(135deg, #0a84ff 0%, #0056b3 100%);
+            color: #ffffff; padding: 14px; border: none; border-radius: 12px;
+            font-size: 15px; font-weight: 600; cursor: pointer; margin-top: 5px; transition: all 0.2s;
+        }
+
+        .forgot-link {
+            display: inline-block; margin-top: 15px; color: #8e8e93; font-size: 12px;
+            text-decoration: none; cursor: pointer; transition: color 0.2s;
+        }
+        .forgot-link:hover { color: #0a84ff; }
+
+        /* پاپ‌آپ فراموشی رمز */
+        .modal-overlay {
+            position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.8);
+            display: none; justify-content: center; align-items: center; z-index: 1000;
+            backdrop-filter: blur(10px);
+        }
+        .modal-card {
+            background: #1c1c1e; border: 1px solid rgba(255,255,255,0.1); padding: 30px;
+            border-radius: 20px; width: 280px; text-align: center; color: white;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="login-glass-card">
+        <div class="auth-hub"><div class="auth-hub-core"></div></div>
+        <h2>بینایی کورتکس</h2>
+        <p>جهت اتصال به هسته پردازش عصبی وارد شوید.</p>
+
+        {% if error_msg %}
+        <div class="error-popup">⚠️ {{ error_msg }}</div>
+        {% endif %}
+        
+        <form method="post">
+            {% csrf_token %}
+            <div class="input-wrapper">
+                <input type="text" name="username" placeholder="نام کاربری" required autocomplete="off">
+            </div>
+            <div class="input-wrapper">
+                <input type="password" name="password" placeholder="رمز عبور" required>
+            </div>
+            <button type="submit">راه‌اندازی موتور هوشمند</button>
+        </form>
+
+        <span class="forgot-link" onclick="openForgot()">فراموشی رمز عبور؟</span>
+    </div>
+
+    <div class="modal-overlay" id="forgotModal">
+        <div class="modal-card">
+            <h4 style="margin-top:0; font-size:16px;">بازیابی هویت کورتکس</h4>
+            <p style="color:#8e8e93; font-size:12px;">کد بازنشانی هسته هوش مصنوعی به سیستم روت ارسال شد:</p>
+            <div style="background:#2c2c2e; padding:10px; border-radius:8px; font-family:monospace; color:#34c759; margin-bottom:20px;">CTX-9920-SEC</div>
+            <button onclick="closeForgot()" style="background:#3a3a3c; padding:10px; font-size:13px;">بستن پنجره</button>
+        </div>
+    </div>
+
+    <script>
+        function openForgot() { document.getElementById('forgotModal').style.display = 'flex'; }
+        function closeForgot() { document.getElementById('forgotModal').style.display = 'none'; }
+    </script>
+</body>
+</html>
